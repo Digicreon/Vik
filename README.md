@@ -5,13 +5,13 @@ It is similar similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax)
 
 
 ## 1. How Vik works?
-By default, Vik alter all links and forms in your HTML page, to make them load pages by AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is quicker ans smoother.
+By default, Vik alter all links and forms in your HTML page, to make them load pages by AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is faster and smoother.
 
-It is possible to configure Vik to load only fragments of the fetched HTML contents, and put them in a sub-part of the current page.
+It is possible to configure Vik to load only fragments of the fetched HTML contents, and put them in a sub-part of the current page. By default, Vik searches for a `<body>` tag and use it to replace the current page's `<body>` tag.
 
 By default, each time a link is clicked, it's destination is added to the browser history, so backward/forward buttons work as they should. But you can configure a link (or all links) to be in "ghost mode".
 
-By default, Vik is configured in order to fetch whole HTML pages, take their `<body>` tag and use it in place of the current `<body>` tag; and the content of the fetched `<title>` tag is used to update the current page's title.
+By default, the content of the fetched page's `<title>` tag is used to update the current page's title (this feature could be configured or disabled).
 
 
 ## 2. How to use Vik
@@ -27,7 +27,7 @@ Then initialize Vik:
 </script>
 ```
 
-If you have some initializations to do (libraries init, or your own code to set up some UI-related stuff), you should give a callback function to Vik. Then, all these initializations will be executed when the current page is loaded, as well as each time a link is clicked or a form is sent. See below for more information.
+If you need to execute some code an all pages (libraries init, or your own code to set up some UI-related stuff), you should put it in a function, and give this function to Vik as a callback. Then, this code will be executed when the current page is loaded, as well as each time a link is clicked or a form is sent. See below for more information.
 
 
 ### 2.2 Default behaviour
@@ -35,13 +35,13 @@ Here is the default behaviour of Vik:
 * It overrides links (`<a>` tags) and forms (`<form>` tags)
     * which target URL starts with a slash ("`/`") but not a double slash ("`//`");
     * without an `onclick` or `target` attribute;
-    * for a form: without a `method` attribute having a "`get`" value;
     * which are not disabled (see the `data-vik` attribute below).
+    * for a form: without a `method` attribute having a "`get`" value;
 * When a link is clicked (or a form is sent)
     1. the linked page's URL is taken from the `href` attribute (the `action` attribute for a form);
     1. the linked page is fetched (for a form: input data are sent in the request);
     1. the `<body>` tag of the fetched content is searched, and it is used to replace the `<body>` tag of the current page;
-    1. the `<title>` tag of the fetched content is searched, and it's content is used to update the page's title;
+    1. the `<title>` tag of the fetched content is searched, and its content is used to update the page title;
     1. the linked URL is added to the browser history (not for forms).
 
 Most aspects of this behaviour are customizable.
@@ -51,7 +51,7 @@ Most aspects of this behaviour are customizable.
 * "**ghost mode**": By default, each click on a Vik-enabled link (not forms) will add an entry in the browser history. When the ghost mode is activated, no entry is added.
 * "**target**": It's the DOM node (the HTML tag) in the currently displayed page, which will be the receptacle to the fetched pages.
 * "**source**": It's the DOM node (the HTML tag) in the fetched page, which contains the fragment that must be displayed. If not set, the entire fetched content will be displayed (it's the fastest processing).
-* "**strategy**": When a *source* is defined, there is three different way to merge it in the *target*.
+* "**strategy**": When a *source* is defined, there is three different ways to merge it in the *target*.
     * "**replace**": The *target* node is replaced by the *source* node. It's the fastest strategy (as long as a *source* is defined; it's even faster when no *source* is defined).
     * "**fill**": The *target* node's content is deleted, and then the *source* node is placed inside the *target* node.
     * "**copy**": The *target* node's content is deleted, and then the content of the *source* node is copied inside the *target* node.
@@ -73,7 +73,7 @@ vik.init({
 Parameters:
 * `processLinks` (boolean): Tell if links (`<a>` tags) must be processed. (default: `true`)
 * `linksSelector` (string): Selector used to fetch the links to modify. (shouldn't be modified)
-* `processForms` (boolean): Tell if form (`<form>` tags) must be processed. (default: `false`)
+* `processForms` (boolean): Tell if form (`<form>` tags) must be processed. (default: `true`)
 * `formsSelector` (string): Selector used to fetch forms. (shouldn't be modified)
 * `extraSelectors` (array): List of extra node selectors. (default: `[]`)
 * `ghost` (boolean): Tell if loadings should be in ghost mode (no addition in history). (default: `false`)
@@ -88,9 +88,10 @@ Parameters:
 * `urlPrefix` (string): Prefix to add on fetched URLs. (default: `null`)
 * `title` (string): Selector of the node which contains the page title. If empty, the page title will not be updated. (default: "`title`")
 * `titleAttribute` (string): Name of the attribute of the node fetched from the "`title`" selector, which contains the page title. If empty, the text content of the selected node will be used. (default: `null`)
+* `manageQuitPageConfirmation` (boolean): Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas a form has begun to be filled. See below for more information. (default: `true`)
 
 
-### 3.2 Links configuration
+### 3.2 Links and forms configuration
 It is possible to add special attributes to a link (or a form) tag, to modify its behaviour.
 
 For example, here the link will *not* be managed by Vik:
@@ -108,12 +109,14 @@ Attributes:
 * `data-vik-url`: Allow to force an URL different than the one set in the `href` or `action` attribute.
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`", "`on`", "`yes`", "`enable`", "`1`", "`false`", "`off`", "`no`", "`disable`" or "`0`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
-* `data-vik-target`: Selector of the DOM element (in the current page) that will replaced by (or filled by) the fetched content.
-* `data-vik-source`: Selector of the DOM element (in the fetched page) that will replace (or fill into, be copied into) the target node.
+* `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
+* `data-vik-source`: Selector of the DOM element (in the fetched page) that will replace (or fill into, or be copied into) the target node.
 * `data-vik-pre-callback`: Name of a Javascript function to execute *before* the new content will be fetched.
 * `data-vik-post-callback`: Name of a Javascript function to execute *after* the new content has been fetched.
 * `data-vik-title`: Selector of the DOM element which contains the new title of the page. Set to an empty string to avoid title update.
 * `data-vik-title-attribute`: Name of the attribute of the node fetched from the "`title`" selector, which contains the page title.
+* `data-vik-quit-page-confirmation`: **Forms only.** Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas this form has begun to be filled. Possible values are "`true`", "`on`", "`yes`", "`enable`", "`1`", "`false`", "`off`", "`no`", "`disable`" or "`0`".
+* `data-vik-form-validation`: **Forms only.** Name of a Javascript function to execute in order to validate the form's content. The function will receive the form's DOM element as parameter, and must return a boolean value (`true` is the form is valid and could be sent; `false` if the form contains errors).
 
 ### 3.3 Configuration priority
 Tag attributes have priority over the global configuration.
@@ -169,6 +172,7 @@ Another example: All the linked pages' full content will be loaded in a special 
 
 
 ## 4. Pure Javascript call
+### 4.1 Page load
 Vik may be used to load pages without having a dedicated link in the page, by calling it from Javascript code. To do so, your code can call the `vik.load()` function, giving the URL as its first parameter. Configuration could be given as the second parameter, with the same keys than the initialization.
 
 Example:
@@ -187,6 +191,25 @@ Example:
             });
         }, 30000);
     </script>
+
+</body>
+</html>
+```
+
+### 4.2 Confirmation when the current page is exited
+It is possible to tell Vik to enable or disable the "quit page confirmation" feature, by calling the `vik.setQuitPageConfirmation()` function, giving a boolean as parameter (`true` to enable, `false` to disable the feature).
+
+Example:
+```html
+<html>
+<body>
+
+    <script>
+        // enable the "quit page confirmation" feature
+        vik.setQuitPageConfirmation(true);
+        // load a page; a confirmation popup will ask confirmation
+        vik.load("/url1");
+    </Script>
 
 </body>
 </html>
