@@ -105,9 +105,9 @@ Another example, where the link will be in "ghost mode" (no update of the browse
 ```
 
 Attributes:
-* `data-vik`: Used to avoid Vik management on a link if set to "`false`", "`off`", "`no`", "`disable`" or "`0`".
+* `data-vik`: Used to avoid Vik management on a link if set to "`false`".
 * `data-vik-url`: Allow to force an URL different than the one set in the `href` or `action` attribute.
-* `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`", "`on`", "`yes`", "`enable`", "`1`", "`false`", "`off`", "`no`", "`disable`" or "`0`".
+* `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
 * `data-vik-source`: Selector of the DOM element (in the fetched page) that will replace (or fill into, or be copied into) the target node.
@@ -115,7 +115,7 @@ Attributes:
 * `data-vik-post-callback`: Name of a Javascript function to execute *after* the new content has been fetched.
 * `data-vik-title`: Selector of the DOM element which contains the new title of the page. Set to an empty string to avoid title update.
 * `data-vik-title-attribute`: Name of the attribute of the node fetched from the "`title`" selector, which contains the page title.
-* `data-vik-quit-page-confirmation`: **Forms only.** Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas this form has begun to be filled. Possible values are "`true`", "`on`", "`yes`", "`enable`", "`1`", "`false`", "`off`", "`no`", "`disable`" or "`0`".
+* `data-vik-quit-page-confirmation`: **Forms only.** Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas this form has begun to be filled. Possible values are "`true`" or "`false`".
 * `data-vik-form-validation`: **Forms only.** Name of a Javascript function to execute in order to validate the form's content. The function will receive the form's DOM element as parameter, and must return a boolean value (`true` is the form is valid and could be sent; `false` if the form contains errors).
 
 ### 3.3 Configuration priority
