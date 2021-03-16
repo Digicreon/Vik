@@ -76,7 +76,7 @@ Parameters:
 * `processForms` (boolean): Tell if form (`<form>` tags) must be processed. (default: `true`)
 * `formsSelector` (string): Selector used to fetch forms. (shouldn't be modified)
 * `extraSelectors` (array): List of extra node selectors. (default: `[]`)
-* `ghost` (boolean): Tell if loadings should be in ghost mode (no addition in history). (default: `false`)
+* `ghost` (boolean): Tell if loadings should be in ghost mode (no addition in history). (default: `false` in general, and `true` for POST forms)
 * `preCallback` (function): Handler to call before the page has been loaded. Could be a function name or an anonymous function.
 * `postCallback` (function): Handler to call after the page has been loaded. Could be a function name or an anonymous function.
 * `strategy` (string): Merging strategy, could be "`replace`", "`fill`" or "`copy`". (default: "`replace`")
@@ -85,10 +85,11 @@ Parameters:
     * `copy`: The content of the source node is copied inside the target node.
 * `target` (string): Selector of the current page's element which will be the target of the managed links. (default: "`body`")
 * `source` (string): Selector of the response's element which will contain the HTML to load. If this element is not found, the whole response will be used. If this parameter is set to null, the whole response will be used. (default: "`body`")
+* `scrollToTop` (boolean): If set to `true`, always scroll to the top of the page when a page is fetched, even if the ghost mode was activated. If set to `false`, never scroll to the top of the page, even if the ghost mode was deactivated. (default: `false` if ghost mode was activated)
 * `urlPrefix` (string): Prefix to add on fetched URLs. (default: `null`)
-* `title` (string): Selector of the node which contains the page title. If empty, the page title will not be updated. (default: "`title`")
-* `titleAttribute` (string): Name of the attribute of the node fetched from the "`title`" selector, which contains the page title. If empty, the text content of the selected node will be used. (default: `null`)
+* `title` (string): Selector of the node which contains the page title. If empty, the page title will not be updated. If the title's text is stored in an attribute of the node (instead of the node's text content), the attribute's name must be added at the end of the selector, separated by a slash. (default: "`title`")
 * `manageQuitPageConfirmation` (boolean): Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas a form has begun to be filled. See below for more information. (default: `true`)
+* `quitPageConfirmationText` (string): Text used for the confirmation box before leaving the page.
 
 
 ### 3.2 Links and forms configuration
@@ -113,9 +114,10 @@ Attributes:
 * `data-vik-source`: Selector of the DOM element (in the fetched page) that will replace (or fill into, or be copied into) the target node.
 * `data-vik-pre-callback`: Name of a Javascript function to execute *before* the new content will be fetched.
 * `data-vik-post-callback`: Name of a Javascript function to execute *after* the new content has been fetched.
-* `data-vik-title`: Selector of the DOM element which contains the new title of the page. Set to an empty string to avoid title update.
-* `data-vik-title-attribute`: Name of the attribute of the node fetched from the "`title`" selector, which contains the page title.
+* `data-vik-title`: Selector of the DOM element which contains the new title of the page. If the title's text is stored in an attribute of the node (instead of the node's text content), the attribute's name must be added at the end of the selector, separated by a slash. Set to an empty string to avoid title update.
+* `data-vik-scroll-to-top`: "`false`" to not scroll to the top of the page. "`true`" to scroll to the top of the page (even if the ghost mode was activated, or if it is a POST form).
 * `data-vik-quit-page-confirmation`: **Forms only.** Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas this form has begun to be filled. Possible values are "`true`" or "`false`".
+* `data-vik-quit-page-text`: **Forms only.** Text used for the confirmation before before leaving the page.
 * `data-vik-form-validation`: **Forms only.** Name of a Javascript function to execute in order to validate the form's content. The function will receive the form's DOM element as parameter, and must return a boolean value (`true` is the form is valid and could be sent; `false` if the form contains errors).
 
 ### 3.3 Configuration priority
