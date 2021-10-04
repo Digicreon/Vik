@@ -89,7 +89,7 @@ Parameters:
 * `urlPrefix` (string): Prefix to add on fetched URLs. (default: `null`)
 * `title` (string): Selector of the node which contains the page title. If empty, the page title will not be updated. If the title's text is stored in an attribute of the node (instead of the node's text content), the attribute's name must be added at the end of the selector, separated by a slash. (default: "`title`")
 * `manageQuitPageConfirmation` (boolean): Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas a form has begun to be filled. See below for more information. (default: `true`)
-* `quitPageConfirmationText` (string): Text used for the confirmation box before leaving the page. (default: "`"Are you sure you want to leave this page?`"; but browsers usually override it)
+* `quitPageConfirmationText` (string): Text used for the confirmation box before leaving the page. (default: "`Are you sure you want to leave this page?`"; but browsers usually override it)
 
 
 ### 3.2 Configuration of links and forms
@@ -107,7 +107,7 @@ Another example, where the link will be in "ghost mode" (no update of the browse
 
 Attributes:
 * `data-vik`: Used to avoid Vik management on a link if set to "`false`".
-* `data-vik-url`: To force an URL different than the one set in the `href` or `action` attribute.
+* `data-vik-url`: Force a URL different than the one set in the `href` or `action` attribute.
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
