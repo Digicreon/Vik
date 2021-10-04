@@ -5,7 +5,7 @@ It is similar similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax)
 
 
 ## 1. How Vik works?
-By default, Vik alter all links and forms in your HTML page, to make them load pages by AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is faster and smoother.
+Vik alters all links and forms in your HTML page, to make them load pages using AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is faster and smoother.
 
 It is possible to configure Vik to load only fragments of the fetched HTML contents, and put them in a sub-part of the current page. By default, Vik searches for a `<body>` tag and use it to replace the current page's `<body>` tag.
 
@@ -27,7 +27,7 @@ Then initialize Vik:
 </script>
 ```
 
-If you need to execute some code an all pages (libraries init, or your own code to set up some UI-related stuff), you should put it in a function, and give this function to Vik as a callback. Then, this code will be executed when the current page is loaded, as well as each time a link is clicked or a form is sent. See below for more information.
+If you need to execute some code on all pages (initialization of libraries, or execution of your own code to set up some UI-related stuff), you should put it in a function, and give this function to Vik as a callback. Then, this code will be executed when the current page is loaded, as well as each time a link is clicked or a form is sent. See below for more information.
 
 
 ### 2.2 Default behaviour
@@ -54,10 +54,10 @@ Most aspects of this behaviour are customizable.
 * "**strategy**": When a *source* is defined, there is three different ways to merge it in the *target*.
     * "**replace**": The *target* node is replaced by the *source* node. It's the fastest strategy (as long as a *source* is defined; it's even faster when no *source* is defined).
     * "**fill**": The *target* node's content is deleted, and then the *source* node is placed inside the *target* node.
-    * "**copy**": The *target* node's content is deleted, and then the content of the *source* node is copied inside the *target* node.
+    * "**copy**": The *target* node's content is deleted, and then the content of the *source* node is copied inside the *target* node. It's the slowest strategy.
 * "**callbacks**": It is possible to configure Vik in order to execute some functions before and/or after fetching a page. A common usage may be to display a "spinning wheel" before fetching the page, to let the user know something is going on, and then remove it after the page has been fetched.
     * "pre callback" is executed before fetching, "post callback" is executed after.
-    * The "post callback" is called during Viki initialization, and after that, each time a new page is fetched. So if you need to initialize some front-end Javascript librairies, it is the right place to do it.
+    * The "post callback" is called during Vik's initialization, and after that, each time a new page is fetched. So if you need to initialize some front-end Javascript librairies, it is the right place to do it.
 
 ## 3. Configuration
 ### 3.1 General configuration
@@ -89,7 +89,7 @@ Parameters:
 * `urlPrefix` (string): Prefix to add on fetched URLs. (default: `null`)
 * `title` (string): Selector of the node which contains the page title. If empty, the page title will not be updated. If the title's text is stored in an attribute of the node (instead of the node's text content), the attribute's name must be added at the end of the selector, separated by a slash. (default: "`title`")
 * `manageQuitPageConfirmation` (boolean): Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas a form has begun to be filled. See below for more information. (default: `true`)
-* `quitPageConfirmationText` (string): Text used for the confirmation box before leaving the page.
+* `quitPageConfirmationText` (string): Text used for the confirmation box before leaving the page. (default: "`"Are you sure you want to leave this page?`"; but browsers usually override it)
 
 
 ### 3.2 Links and forms configuration
@@ -107,7 +107,7 @@ Another example, where the link will be in "ghost mode" (no update of the browse
 
 Attributes:
 * `data-vik`: Used to avoid Vik management on a link if set to "`false`".
-* `data-vik-url`: Allow to force an URL different than the one set in the `href` or `action` attribute.
+* `data-vik-url`: To force an URL different than the one set in the `href` or `action` attribute.
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
@@ -117,8 +117,8 @@ Attributes:
 * `data-vik-title`: Selector of the DOM element which contains the new title of the page. If the title's text is stored in an attribute of the node (instead of the node's text content), the attribute's name must be added at the end of the selector, separated by a slash. Set to an empty string to avoid title update.
 * `data-vik-scroll-to-top`: "`false`" to not scroll to the top of the page. "`true`" to scroll to the top of the page (even if the ghost mode was activated, or if it is a POST form).
 * `data-vik-quit-page-confirmation`: **Forms only.** Tell if a confirmation popup should be displayed when the user tries to quit the current page whereas this form has begun to be filled. Possible values are "`true`" or "`false`".
-* `data-vik-quit-page-text`: **Forms only.** Text used for the confirmation before before leaving the page.
-* `data-vik-form-validation`: **Forms only.** Name of a Javascript function to execute in order to validate the form's content. The function will receive the form's DOM element as parameter, and must return a boolean value (`true` is the form is valid and could be sent; `false` if the form contains errors).
+* `data-vik-quit-page-text`: **Forms only.** Text used for the confirmation popup before leaving the page. (browsers usually override it)
+* `data-vik-form-validation`: **Forms only.** Name of a Javascript function to execute in order to validate the form's content. The function will receive the form's DOM element as parameter, and must return a boolean value (`true` if the form is valid and could be sent; `false` if the form contains errors).
 
 ### 3.3 Configuration priority
 Tag attributes have priority over the global configuration.
@@ -198,7 +198,36 @@ Example:
 </html>
 ```
 
-### 4.2 Confirmation when the current page is exited
+### 4.2 Get the last URL loaded by Vik
+The `vik.getLastUrl()` method returns the URL of the last page loaded by Vik. If Vik wasn't used yet, it returns `null`.
+It could be used in the "post callback", to know if it is called during Vik's initialization, or because a link was clicked (or a form was sent).
+
+Example:
+```html
+<html>
+<body>
+
+    <script>
+        // Vik init
+        vik.ini({
+            // post callback function
+            postCallback: function() {
+                // get the last fetched URL
+                var lastUrl = vik.getLastUrl();
+                if (!lastUrl) {
+                    // no previously fetched page, so it's Vik init
+                    return;
+                }
+                // a page was fetched, so it's time to do some processing
+                // like menu management, Google Analytics management, and so on
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+### 4.3 Confirmation when the current page is exited
 It is possible to tell Vik to enable or disable the "quit page confirmation" feature, by calling the `vik.setQuitPageConfirmation()` function, giving a boolean as parameter (`true` to enable, `false` to disable the feature).
 
 Example:
@@ -212,6 +241,104 @@ Example:
         // load a page; a confirmation popup will ask confirmation
         vik.load("/url1");
     </Script>
+
+</body>
+</html>
+```
+
+
+## 5. Utility functions
+### 5.1 Execute code when the page is loaded
+You may need to execute some code once the full HTML page is loaded. If you are using the jQuery library, you can use the `$(document).ready()` function.
+But if you want to stay free from jQuery dependency, you can use the `vik.onDocumentReady()` function.
+
+Example:
+```html
+<html>
+<body>
+
+    <script>
+        // execute the given anonymous function when the page is loaded
+        vik.onDocumentReady(function() {
+            // some code
+        });
+    </script>
+
+</body>
+</html>
+```
+
+### 5.2 Overload an object with the content of another one
+This utility method is used to overload and extend an object with the content of another object.
+
+If an attribute exists only in the first object, it is not modified.
+If an attribute exists only in the second object, it is added to the first object with it's associated value.
+If an attribute exists in both object, the content of the associated value in the second object will overwrite the value in the first object.
+
+Warning: The first object given as parameter may be modified by this function.
+
+Example:
+```html
+<html>
+<body>
+
+    <script>
+        // create two objects
+        var a = {
+            foo: 123,
+            bar: "abc"
+        };
+        var b = {
+            foo: 456,
+            baz: "zyx"
+        };
+        // object overloading
+        vik.overloadObject(a, b);
+
+        // now the first object is:
+        // a = {
+        //     foo: 456,
+        //     bar: "abc",
+        //     baz: "zyx"
+        // };
+    </script>
+
+</body>
+</html>
+```
+
+### 5.3 Do an HTTP request
+You may want to do an HTTP request, without dealing with all the related stuff.
+
+To do that, you can call the `vik.fetchHttp(url, strategy, asHTML, postData, handler)` method.
+Parameters:
+* `url`: The URL to fetch.
+* `strategy`: The Vik strategy. It is sent in a special `x-vik-strategy` HTTP header. You can set it to `null`.
+* `asHTML`: Possible values are `true` and `false`. If set to `true`, the fetched content will be processed as HTML, and then the handler callback will receive a DOM node as parameter. If set to `false`, the handler callback will receive the reponse as raw text.
+* `postData`: Set it to `null` if you want to perform a GET request. If you want to do a POST request, give an object which each attribute will become a POST data.
+* `handler`: Callback function that will be called once the HTTP request is executed. It must take one parameter, which can be a DOM node or a raw text (see the `asHTML` parameter).
+
+Example:
+```html
+<html>
+<body id="page-body">
+
+    <script>
+        // perform a GET request on a text file, and display its content on the console
+        vik.fetchHttp("/path/to/file.txt", null, false, null, function(txt) {
+            console.log(txt);
+        });
+
+        // perform a POST request, and write the returned HTML in the current page
+        var postParams = {
+            publicKey: "some key",
+            privateKey: "some random key"
+        };
+        vik.fetchHttp("/url1", null, true, postParams, function(responseNode) {
+            var body = document.getElementById("page-body");
+            body.appendChild(responseNode);
+        });
+    </script>
 
 </body>
 </html>
