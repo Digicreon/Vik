@@ -5,11 +5,11 @@ It is similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax) and [Ba
 
 
 ## 1. How does Vik works?
-Vik alters all links and forms in your HTML page, to make them load pages using AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is faster and smoother.
+Vik alters all links and forms in your HTML page, to make them load pages using AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is a lot faster and smoother.
 
 It is possible to configure Vik to load only fragments of the fetched HTML contents, and put them in a sub-part of the current page. By default, Vik searches for a `<body>` tag and use it to replace the current page's `<body>` tag.
 
-By default, each time a link is clicked, its destination is added to the browser history, so backward/forward buttons work as they should. But you can configure a link (or all links) to be in "ghost mode".
+By default, each time a link is clicked, its destination is added to the browser history, so backward/forward buttons work as they should. But you can configure a link (or all links) to be in "ghost mode" (not added to the history).
 
 By default, the content of the fetched page's `<title>` tag is used to update the current page's title (this feature could be configured or disabled).
 
@@ -27,14 +27,15 @@ Then initialize Vik:
 </script>
 ```
 
-If you need to execute some code on all pages (initialization of libraries, or execution of your own code to set up some UI-related stuff), you should put it in a function, and give this function to Vik as a callback. Then, this code will be executed when the current page is loaded, as well as each time a link is clicked or a form is sent. See below for more information.
+If you need to execute some code on all pages (initialization of libraries, or execution of your own code to set up some UI-related stuff), you should put it in a function, and give this function to Vik as a callbacki, or bind this function to the `vik:postLoad` event. Then, this code will be executed when the current page is loaded, as well as each time a link is clicked or a form is sent. See below for more information.
 
 
 ### 2.2 Default behavior
 Here is the default behavior of Vik:
 * It overrides links (`<a>` tags) and forms (`<form>` tags)
     * which target URL starts with a slash ("`/`") but not a double slash ("`//`");
-    * without an `onclick` or `target` attribute;
+    * without an `onclick` (for links) or `onsubmit` (for forms) attribute;
+    * without a `target` attribute;
     * which are not disabled (see the `data-vik` attribute below).
     * for a form: without a `method` attribute having a "`get`" value;
 * When a link is clicked (or a form is sent)
@@ -56,8 +57,11 @@ Most aspects of this behavior are customizable.
     * "**fill**": The *target* node's content is deleted, and then the *source* node is placed inside the *target* node.
     * "**copy**": The *target* node's content is deleted, and then the content of the *source* node is copied inside the *target* node. It's the slowest strategy.
 * "**callbacks**": It is possible to configure Vik in order to execute some functions before and/or after fetching a page. A common usage may be to display a "spinning wheel" before fetching the page, to let the user know something is going on, and then remove it after the page has been fetched.
-    * "pre callback" is executed before fetching, "post callback" is executed after.
-    * The "post callback" is called during Vik's initialization, and after that, each time a new page is fetched. So if you need to initialize some front-end Javascript libraries, it is the right place to do it.
+    * The "pre callback" is executed before fetching a page.
+    * The "post callback" is executed after a page has been fetched. It is also called during Vik's initialization and, after that, each time a new page is fetched. So if you need to initialize some front-end Javascript libraries, it is the right place to do it.
+* "**events**": Similarly to callbacks, your code can bind to `vik:preLoad` and `vik.postLoad` events, to be executed before and after fetching a page.
+    * `vik:preLoad` is triggered before fetching a page (but after "pre callback" execution). If the event is canceled at least once (see below), the page will not be loaded.
+    * `vik:postLoad` is triggered when Vik is initialized, and after a page has been fetched. This event is not cancelable.
 
 ## 3. Configuration
 ### 3.1 General configuration
@@ -72,19 +76,18 @@ vik.init({
 ```
 Parameters:
 * `processLinks` (boolean): Tell if links (`<a>` tags) must be processed. (default: `true`)
-* `linksSelector` (string): Selector used to fetch the links to modify. (shouldn't be modified)
+* `linksSelector` (string): Selector used to fetch the links to modify. (shouldn't be modified unless you know what you are doing)
 * `processForms` (boolean): Tell if form (`<form>` tags) must be processed. (default: `true`)
-* `formsSelector` (string): Selector used to fetch forms. (shouldn't be modified)
-* `extraSelectors` (array): List of extra node selectors. (default: `[]`)
+* `formsSelector` (string): Selector used to fetch forms. (shouldn't be modified unless you know what you are doing)
 * `ghost` (boolean): Tell if loadings should be in ghost mode (no addition in history). (default: `false` in general, and `true` for POST forms)
-* `preCallback` (function): Handler to call before the page has been loaded. Could be a function name or an anonymous function.
-* `postCallback` (function): Handler to call after the page has been loaded. Could be a function name or an anonymous function.
+* `preCallback` (function|array): Handler to call before the page has been loaded. Could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
+* `postCallback` (function|array): Handler to call after the page has been loaded. Could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
 * `strategy` (string): Merging strategy, could be "`replace`", "`fill`" or "`copy`". (default: "`replace`")
     * `replace`: The target node is replaced by the source node.
     * `fill`: The source node is copied inside the target node.
     * `copy`: The content of the source node is copied inside the target node.
 * `target` (string): Selector of the current page's element which will be the target of the managed links. (default: "`body`")
-* `source` (string): Selector of the response's element which will contain the HTML to load. If this element is not found, the whole response will be used. If this parameter is set to null, the whole response will be used. (default: "`body`")
+* `source` (string): Selector of the response's element which will contain the HTML to load. If this parameter is set to null or if the element is not found, the whole response will be used. (default: "`body`")
 * `scrollToTop` (boolean): If set to `true`, always scroll to the top of the page when a page is fetched, even if the ghost mode was activated. If set to `false`, never scroll to the top of the page, even if the ghost mode was deactivated. (default: `false` if ghost mode was activated)
 * `urlPrefix` (string): Prefix to add on fetched URLs. (default: `null`)
 * `title` (string): Selector of the node which contains the page title. If empty, the page title will not be updated. If the title's text is stored in an attribute of the node (instead of the node's text content), the attribute's name must be added at the end of the selector, separated by a slash. (default: "`title`")
@@ -198,9 +201,11 @@ Example:
 </html>
 ```
 
-### 4.2 Get the last URL loaded by Vik
+### 4.2 Get the last URLs loaded by Vik
 The `vik.getLastUrl()` method returns the URL of the last page loaded by Vik. If Vik wasn't used yet, it returns `null`.
 It could be used in the "post callback", to know if it is called during Vik's initialization, or because a link was clicked (or a form was sent).
+
+The `vik.getPreviousUrl()` method returns the URL previous to the last one. It returns `null`as long as Vik hasn't loaded at least two pages.
 
 Example:
 ```html
