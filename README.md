@@ -111,6 +111,7 @@ Another example, where the link will be in "ghost mode" (no update of the browse
 Attributes:
 * `data-vik`: Used to avoid Vik management on a link if set to "`false`".
 * `data-vik-url`: Force a URL different than the one set in the `href` or `action` attribute.
+* `data-vik-method`: Set to "post" to force the POST HTTP method when a link is fetched (forms use the "method" attribute to define the used HTTP method).
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
@@ -205,8 +206,6 @@ Example:
 The `vik.getLastUrl()` method returns the URL of the last page loaded by Vik. If Vik wasn't used yet, it returns `null`.
 It could be used in the "post callback", to know if it is called during Vik's initialization, or because a link was clicked (or a form was sent).
 
-The `vik.getPreviousUrl()` method returns the URL previous to the last one. It returns `null`as long as Vik hasn't loaded at least two pages.
-
 Example:
 ```html
 <html>
@@ -225,6 +224,31 @@ Example:
                 }
                 // a page was fetched, so it's time to do some processing
                 // like menu management, Google Analytics management, and so on
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+The `vik.getPreviousUrl()` method returns the URL previous to the last one. It returns `null` as long as Vik hasn't loaded at least two pages.
+
+Instead of calling these methods, it's also possible to use the `detail.lastUrl` and `detail.previousUrl` attributes from the event.
+
+Example:
+```html
+<html>
+<body>
+
+    <script>
+        // Vik init
+        vik.ini({
+            // post callback function
+            postCallback: function(e) {
+                // write the last fetched URL
+                console.log(e.detail.lastUrl);
+                // write the previous URL
+                console.log(e.detail.previousUrl);
             }
         });
     </script>
