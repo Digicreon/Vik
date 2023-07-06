@@ -80,6 +80,7 @@ Parameters:
 * `processForms` (boolean): Tell if form (`<form>` tags) must be processed. (default: `true`)
 * `formsSelector` (string): Selector used to fetch forms. (shouldn't be modified unless you know what you are doing)
 * `ghost` (boolean): Tell if loadings should be in ghost mode (no addition in history). (default: `false` in general, and `true` for POST forms)
+* `postMethod` (bool): Set to `true` to force the POST HTTP method when a link is fetched (no effect on forms).
 * `preCallback` (function|array): Handler to call before the page has been loaded. Could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
 * `postCallback` (function|array): Handler to call after the page has been loaded. Could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
 * `strategy` (string): Merging strategy, could be "`replace`", "`fill`" or "`copy`". (default: "`replace`")
@@ -111,7 +112,7 @@ Another example, where the link will be in "ghost mode" (no update of the browse
 Attributes:
 * `data-vik`: Used to avoid Vik management on a link if set to "`false`".
 * `data-vik-url`: Force a URL different than the one set in the `href` or `action` attribute.
-* `data-vik-method`: Set to "post" to force the POST HTTP method when a link is fetched (forms use the "method" attribute to define the used HTTP method).
+* `data-vik-post-method`: Set to `true`" to force the POST HTTP method when a link is fetched (forms use the "`method`" attribute to define the used HTTP method).
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
