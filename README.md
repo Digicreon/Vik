@@ -4,7 +4,7 @@ Vik is a Javascript library that accelerate your website without using a JS fram
 It is similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax) and [Basecamp's TurboLink](https://turbo.hotwire.dev/).
 
 
-## Table of wontents
+## Table of contents
 * [1. How does Vik works?](#1-how-does-vik-works)
 * [2. How to use Vik](#2-how-to-use-vik)
     * [2.1 Initialization](#21-initialization)
