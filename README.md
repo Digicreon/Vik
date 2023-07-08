@@ -4,6 +4,31 @@ Vik is a Javascript library that accelerate your website without using a JS fram
 It is similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax) and [Basecamp's TurboLink](https://turbo.hotwire.dev/).
 
 
+## Table of wontents
+* [1. How does Vik works?](#1-how-does-vik-works)
+* [2. How to use Vik](#2-how-to-use-vik)
+    * [2.1 Initialization](#21-initialization)
+    * [2.2 Default behavior](#22-default-behavior)
+    * [2.3 Key concepts](#23-key-concepts)
+* [3. Configuration](#3-configuration)
+    * [3.1 General configuration](#31-general-configuration)
+    * [3.2 Configuration of links and forms](#32-configuration-of-links-and-forms)
+    * [3.3 Configuration priority](#33-configuration-priority)
+* [4. Pre- and Post-callbacks](#4-pre-and-post-callbacks)
+    * [4.1 Event parameter](#41-event-parameter)
+    * [4.2 Configuration declaration](#42-configuration-declaration)
+    * [4.3 Declaration of event listeners](#43-declaration-of-event-listeners)
+    * [4.4 Node declaration](#44-node-declaration)
+* [5. Pure Javascript call](#5-pure-javascript-call)
+    * [5.1 Page load](#51-page-load)
+    * [5.2 Get the last URLs loaded by Vik](#52-get-the-last-urls-loaded-by-vik)
+    * [5.3 Confirmation when the current page is exited](#53-confirmation-when-the-current-page-is-exited)
+* [6. Utility functions](#6-utility-functions)
+    * [6.1 Execute code when the page is loaded](#61-execute-code-when-the-page-is-loaded)
+    * [6.2 Overload an object with the content of another one](#62-overload-an-object-with-the-content-of-another-one)
+    * [6.3 Make an HTTP request](#63-make-an-http-request)
+
+
 ## 1. How does Vik works?
 Vik alters all links and forms in your HTML page, to make them load pages using AJAX requests. Then, when a link is clicked, the HTML page is fetched and its content is written in the current page; but there is no processing of the new content's CSS and Javascript, so the navigation is a lot faster and smoother.
 
@@ -49,7 +74,7 @@ Most aspects of this behavior are customizable.
 
 
 ### 2.3 Key concepts
-* "**ghost mode**": By default, each click on a Vik-enabled link (not forms) will add an entry in the browser history. When the ghost mode is activated, no entry is added.
+* "**ghost mode**": By default, every click on a Vik-enabled link (not forms) will add an entry in the browser history. When the ghost mode is activated, no entry is added.
 * "**target**": It's the DOM node (the HTML tag) in the currently displayed page, which will be the receptacle to the fetched pages.
 * "**source**": It's the DOM node (the HTML tag) in the fetched page, which contains the fragment that must be displayed. If not set, the entire fetched content will be displayed (it's the fastest processing).
 * "**strategy**": When a *source* is defined, there are three different ways to merge it in the *target*.
@@ -112,7 +137,7 @@ Another example, where the link will be in "ghost mode" (no update of the browse
 Attributes:
 * `data-vik`: Used to avoid Vik management on a link if set to "`false`".
 * `data-vik-url`: Force a URL different than the one set in the `href` or `action` attribute.
-* `data-vik-post-method`: Set to `true`" to force the POST HTTP method when a link is fetched (forms use the "`method`" attribute to define the used HTTP method).
+* `data-vik-post-method`: Set to "`true`" to force the POST HTTP method when a link is fetched (forms use the "`method`" attribute to define the used HTTP method).
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
@@ -178,8 +203,138 @@ Another example: All the linked pages' full content will be loaded in a special 
 ```
 
 
-## 4. Pure Javascript call
-### 4.1 Page load
+## 4. Pre- and Post-callbacks
+Vik supports three different way to execute code before and after a page is fetched.
+
+### 4.1 Event parameter
+Callbacks can take a parameter which contains an Event object. The event's `detail` property has three useful properties:
+* `url`: The currently fetched URL. (`null` when post-callbacks are executed during Vik initialization)
+* `lastUrl`: The URL of the last page loaded by Vik. (`null` as long as no one page has been loaded by Vik)
+* `previousUrl`: The URL previous to the last one. (`null` as long as Vik hasn't loaded at least two pages)
+
+Example:
+```js
+vik.init({
+    preCallback: function(event) {
+        // show the currently fetched URL
+        console.log(event.detail.url);
+        // check if it is the first page loaded by Vik
+        if (!event.detail.lastUrl)
+            console.log("First use of Vik");
+        // display the last URL and the previous one
+        if (event.detail.previousUrl) {
+            console.log("Last URL: " + event.detail.lastUrl);
+            console.log("Previous URL: " + event.detail.previousUrl);
+        }
+    }
+});
+```
+
+Any pre-callback can block the loading of the link by preventing the event execution with the `preventDefault()` method of the event. In this case, the subsequent callbacks will still be called. To know if the event has been canceled, use the `defaultPrevented` read-only property of the event (set to `true` if the event has been canceled).
+
+Example:
+```js
+vik.init({
+    preCallback: [
+        "firstCallback",
+        "secondCallback"
+    ]
+});
+function firstCallback(event) {
+    // cancel the event
+    event.preventDefault();
+}
+function secondCallback(event) {
+    var url = event.detail.lastUrl;
+    if (event.defaultPrevented) {
+        console.log("The link " + url + " will NOT be fetched");
+    } else {
+        console.log("The link " + url + " will be fetched");
+    }
+}
+```
+
+### 4.2 Configuration declaration
+In Vik's initialization, it's possible to define one or many pre-ccallbacks and post-callbacks. It could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
+
+Example of a function name and an anonymous function:
+```js
+vik.init({
+    preCallback: "myHandler",
+    postCallback: function() {
+        console.log("post callback");
+    }
+});
+function myHandler() {
+    console.log("pre callback");
+}
+```
+
+Example of lists:
+```js
+vik.init({
+    preCallback: [
+        "myFirstHandler",
+        "mySecondHandler",
+        function() {
+            console.log("Third pre callback");
+        }
+    ]
+});
+function myFirstHandler() {
+    console.log("First pre callback");
+}
+function mySecondHandler() {
+    console.log("Second pre callback");
+}
+```
+
+### 4.3 Declaration of event listeners
+It is possible to attach one or more functions to the "`vik:preLoad`" and "`vik:postLoad`" events.
+
+Here is a simple example:
+```js
+vik.init();
+document.addEventListener("vik:preLoad", function(event) {
+    console.log("first pre-callback");
+});
+document.addEventListener("vik:preLoad", function(event) {
+    console.log("second pre-callback");
+});
+document.addEventListener("vik:postLoad", function(event) {
+    console.log("first post-callback");
+});
+document.addEventListener("vik:postLoad", function(event) {
+    console.log("second post-callback");
+});
+```
+
+### 4.4 Node declaration
+Any `<a>` and `<form>` tag which is managed by Vik may take a `data-vik-pre-callback` and `data-vik-post-callback` attribute. These attributes can contain the name of a function that must be executed before or after the fetch of a new page.
+
+Example:
+```html
+<html>
+<head>
+    <script src="/path/to/vik.js"></script>
+</head>
+<body>
+    <a href="/url1"
+       data-vik-pre-callback="myPreHandler"
+       data-vik-post-callback="myPostHandler">Link</a>
+
+    <script>
+        vik.init();
+        function myPreHandler() { console.log("Pre callback"); }
+        function myPostHandler() { console.log("Post callback"); }
+    </script>
+</body>
+</html>
+```
+
+
+## 5. Pure Javascript call
+### 5.1 Page load
 Vik may be used to load pages without having a dedicated link in the page, by calling it from Javascript code. To do so, your code can call the `vik.load()` function, giving the URL as its first parameter. Configuration could be given as the second parameter, with the same keys as the initialization.
 
 Example:
@@ -203,30 +358,35 @@ Example:
 </html>
 ```
 
-### 4.2 Get the last URLs loaded by Vik
+### 5.2 Get the last URLs loaded by Vik
 The `vik.getLastUrl()` method returns the URL of the last page loaded by Vik. If Vik wasn't used yet, it returns `null`.
-It could be used in the "post callback", to know if it is called during Vik's initialization, or because a link was clicked (or a form was sent).
 
 Example:
 ```html
 <html>
 <body>
 
+    <button onclick="check()">Check</button>
     <script>
         // Vik init
-        vik.ini({
-            // post callback function
-            postCallback: function() {
-                // get the last fetched URL
-                var lastUrl = vik.getLastUrl();
-                if (!lastUrl) {
-                    // no previously fetched page, so it's Vik init
-                    return;
+        vik.init();
+        // function called when the button is clicked
+        function check() {
+            // get the last fetched URL
+            var lastUrl = vik.getLastUrl();
+            if (!lastUrl) {
+                alert("No page loaded with Vik yet.");
+            } else {
+                alert("The last page loaded by Vik was: " + lastUrl);
+                // get the previous one
+                var previousUrl = vik.getPreviousUrl();
+                if (!previousUrl) {
+                    alert("No other page loaded with Vik yet.");
+                } else {
+                    alert("The previous URL loaded by Vik was: " + previousUrl);
                 }
-                // a page was fetched, so it's time to do some processing
-                // like menu management, Google Analytics management, and so on
             }
-        });
+        }
     </script>
 </body>
 </html>
@@ -234,30 +394,7 @@ Example:
 
 The `vik.getPreviousUrl()` method returns the URL previous to the last one. It returns `null` as long as Vik hasn't loaded at least two pages.
 
-Instead of calling these methods, it's also possible to use the `detail.lastUrl` and `detail.previousUrl` attributes from the event.
-
-Example:
-```html
-<html>
-<body>
-
-    <script>
-        // Vik init
-        vik.ini({
-            // post callback function
-            postCallback: function(e) {
-                // write the last fetched URL
-                console.log(e.detail.lastUrl);
-                // write the previous URL
-                console.log(e.detail.previousUrl);
-            }
-        });
-    </script>
-</body>
-</html>
-```
-
-### 4.3 Confirmation when the current page is exited
+### 5.3 Confirmation when the current page is exited
 It is possible to tell Vik to enable or disable the "quit page confirmation" feature, by calling the `vik.setQuitPageConfirmation()` function, giving a boolean as its parameter (`true` to enable, `false` to disable the feature).
 
 Example:
@@ -277,8 +414,8 @@ Example:
 ```
 
 
-## 5. Utility functions
-### 5.1 Execute code when the page is loaded
+## 6. Utility functions
+### 6.1 Execute code when the page is loaded
 You may need to execute some code once the full HTML page is loaded. If you are using the jQuery library, you can use the `$(document).ready()` function.
 But if you want to stay free from jQuery dependency, you can use the `vik.onDocumentReady()` function.
 
@@ -298,7 +435,7 @@ Example:
 </html>
 ```
 
-### 5.2 Overload an object with the content of another one
+### 6.2 Overload an object with the content of another one
 This utility method is used to overload and extend an object with the content of another object.
 
 If an attribute exists only in the first object, it is not modified.
@@ -337,7 +474,7 @@ Example:
 </html>
 ```
 
-### 5.3 Make an HTTP request
+### 6.3 Make an HTTP request
 You may want to do an HTTP request, without dealing with all the related stuff.
 
 To do that, you can call the `vik.fetchHttp(url, strategy, asHTML, postData, handler)` method.
