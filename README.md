@@ -14,11 +14,11 @@ It is similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax) and [Ba
     * [3.1 General configuration](#31-general-configuration)
     * [3.2 Configuration of links and forms](#32-configuration-of-links-and-forms)
     * [3.3 Configuration priority](#33-configuration-priority)
-* [4. Pre- and Post-callbacks](#4-pre-and-post-callbacks)
-    * [4.1 Event parameter](#41-event-parameter)
-    * [4.2 Configuration declaration](#42-configuration-declaration)
-    * [4.3 Declaration of event listeners](#43-declaration-of-event-listeners)
-    * [4.4 Node declaration](#44-node-declaration)
+* [4. Pre- and Post-callbacks](#4-pre--and-post-callbacks)
+    * [4.1 Configuration declaration](#41-configuration-declaration)
+    * [4.2 Declaration of event listeners](#42-declaration-of-event-listeners)
+    * [4.3 DOM Node declaration](#43-dom-node-declaration)
+    * [4.4 Event parameter](#44-event-parameter)
 * [5. Pure Javascript call](#5-pure-javascript-call)
     * [5.1 Page load](#51-page-load)
     * [5.2 Get the last URLs loaded by Vik](#52-get-the-last-urls-loaded-by-vik)
@@ -204,9 +204,87 @@ Another example: All the linked pages' full content will be loaded in a special 
 
 
 ## 4. Pre- and Post-callbacks
-Vik supports three different way to execute code before and after a page is fetched.
+Vik supports three different way to execute code before and after a page is fetched: by defining them in Vik's configuration, by creating event listeners, or by declaring them in an attribute on the link's DOM node.
 
-### 4.1 Event parameter
+### 4.1 Configuration declaration
+In Vik's initialization, it's possible to define one or many pre-ccallbacks and post-callbacks. It could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
+
+Example of a function name and an anonymous function:
+```js
+vik.init({
+    preCallback: "myHandler",
+    postCallback: function() {
+        console.log("post-callback");
+    }
+});
+function myHandler() {
+    console.log("pre-callback");
+}
+```
+
+Example of lists:
+```js
+vik.init({
+    preCallback: [
+        "myFirstHandler",
+        "mySecondHandler",
+        function() {
+            console.log("Third pre-callback");
+        }
+    ]
+});
+function myFirstHandler() {
+    console.log("First pre-callback");
+}
+function mySecondHandler() {
+    console.log("Second pre-callback");
+}
+```
+
+### 4.2 Declaration of event listeners
+It is possible to attach one or more functions to the "`vik:preLoad`" and "`vik:postLoad`" events.
+
+Here is a simple example:
+```js
+vik.init();
+document.addEventListener("vik:preLoad", function(event) {
+    console.log("first pre-callback");
+});
+document.addEventListener("vik:preLoad", function(event) {
+    console.log("second pre-callback");
+});
+document.addEventListener("vik:postLoad", function(event) {
+    console.log("first post-callback");
+});
+document.addEventListener("vik:postLoad", function(event) {
+    console.log("second post-callback");
+});
+```
+
+### 4.3 DOM Node declaration
+Any `<a>` and `<form>` tag which is managed by Vik may take a `data-vik-pre-callback` and `data-vik-post-callback` attribute. These attributes can contain the name of a function that must be executed before or after the fetch of a new page.
+
+Example:
+```html
+<html>
+<head>
+    <script src="/path/to/vik.js"></script>
+</head>
+<body>
+    <a href="/url1"
+       data-vik-pre-callback="myPreHandler"
+       data-vik-post-callback="myPostHandler">Link</a>
+
+    <script>
+        vik.init();
+        function myPreHandler() { console.log("Pre callback"); }
+        function myPostHandler() { console.log("Post callback"); }
+    </script>
+</body>
+</html>
+```
+
+### 4.4 Event parameter
 Callbacks can take a parameter which contains an Event object. The event's `detail` property has three useful properties:
 * `url`: The currently fetched URL. (`null` when post-callbacks are executed during Vik initialization)
 * `lastUrl`: The URL of the last page loaded by Vik. (`null` as long as no one page has been loaded by Vik)
@@ -252,84 +330,6 @@ function secondCallback(event) {
         console.log("The link " + url + " will be fetched");
     }
 }
-```
-
-### 4.2 Configuration declaration
-In Vik's initialization, it's possible to define one or many pre-ccallbacks and post-callbacks. It could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
-
-Example of a function name and an anonymous function:
-```js
-vik.init({
-    preCallback: "myHandler",
-    postCallback: function() {
-        console.log("post callback");
-    }
-});
-function myHandler() {
-    console.log("pre callback");
-}
-```
-
-Example of lists:
-```js
-vik.init({
-    preCallback: [
-        "myFirstHandler",
-        "mySecondHandler",
-        function() {
-            console.log("Third pre callback");
-        }
-    ]
-});
-function myFirstHandler() {
-    console.log("First pre callback");
-}
-function mySecondHandler() {
-    console.log("Second pre callback");
-}
-```
-
-### 4.3 Declaration of event listeners
-It is possible to attach one or more functions to the "`vik:preLoad`" and "`vik:postLoad`" events.
-
-Here is a simple example:
-```js
-vik.init();
-document.addEventListener("vik:preLoad", function(event) {
-    console.log("first pre-callback");
-});
-document.addEventListener("vik:preLoad", function(event) {
-    console.log("second pre-callback");
-});
-document.addEventListener("vik:postLoad", function(event) {
-    console.log("first post-callback");
-});
-document.addEventListener("vik:postLoad", function(event) {
-    console.log("second post-callback");
-});
-```
-
-### 4.4 Node declaration
-Any `<a>` and `<form>` tag which is managed by Vik may take a `data-vik-pre-callback` and `data-vik-post-callback` attribute. These attributes can contain the name of a function that must be executed before or after the fetch of a new page.
-
-Example:
-```html
-<html>
-<head>
-    <script src="/path/to/vik.js"></script>
-</head>
-<body>
-    <a href="/url1"
-       data-vik-pre-callback="myPreHandler"
-       data-vik-post-callback="myPostHandler">Link</a>
-
-    <script>
-        vik.init();
-        function myPreHandler() { console.log("Pre callback"); }
-        function myPostHandler() { console.log("Post callback"); }
-    </script>
-</body>
-</html>
 ```
 
 
