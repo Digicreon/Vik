@@ -172,7 +172,7 @@ For example, it is possible to configure Vik in order to set all links in "ghost
 </html>
 ```
 
-Another example: All the linked pages' full content will be loaded in a special `<div>`, and the page's title will not be updated. But for one link, its `<body>` tag will replace the current page's `<body>` tag, and the fetched page's title will be used (so the default behavior become a special behavior).
+Another example: All the linked pages' full content will be loaded in a special `<div>`, and the page's title will not be updated. But for one link, its `<body>` tag will replace the current page's `<body>` tag, and the fetched page's title will be used (so the default behavior becomes a special behavior).
 ```html
 <html>
 <body>
@@ -207,24 +207,27 @@ Another example: All the linked pages' full content will be loaded in a special 
 Vik supports three different way to execute code before and after a page is fetched: by defining them in Vik's configuration, by creating event listeners, or by declaring them in an attribute on the link's DOM node.
 
 ### 4.1 Configuration declaration
-In Vik's initialization, it's possible to define one or many pre-ccallbacks and post-callbacks. It could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
+In Vik's initialization, it's possible to define one or many pre-callbacks and post-callbacks. It could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
 
-Example of a function name and an anonymous function:
+Example of an anonymous function and a function name:
 ```js
 vik.init({
-    preCallback: "myHandler",
-    postCallback: function() {
-        console.log("post-callback");
-    }
+    // pre-callback using an anonymous function
+    preCallback: function() {
+        console.log("pre-callback");
+    },
+    // post-callback using a function name
+    postCallback: "myHandler"
 });
 function myHandler() {
-    console.log("pre-callback");
+    console.log("post-callback");
 }
 ```
 
 Example of lists:
 ```js
 vik.init({
+    // pre-callback using a list of two function names and an anonymous function
     preCallback: [
         "myFirstHandler",
         "mySecondHandler",
@@ -344,7 +347,7 @@ Example:
 
     <script>
         // wait 30 seconds and load a new page
-        settimeout(function() {
+        setTimeout(function() {
             vik.load("/url1", {
                 ghost: false,
                 source: null,
