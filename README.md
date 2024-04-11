@@ -497,7 +497,10 @@ Example:
 
     <script>
         // perform a GET request on a text file, and display its content on the console
-        vik.fetchHttp("/path/to/file.txt", null, false, null, function(txt) {
+        var url = "/path/to/file.txt";
+        vik.fetchHttp(url, null, false, null, function(txt, finalUrl) {
+            if (finalUrl != url)
+                console.log("Redirection(s) occurred.");
             console.log(txt);
         });
 
@@ -506,7 +509,7 @@ Example:
             publicKey: "some key",
             privateKey: "some random key"
         };
-        vik.fetchHttp("/url1", null, true, postParams, function(responseNode) {
+        vik.fetchHttp("/url1", null, true, postParams, function(responseNode, finalUrl) {
             var body = document.getElementById("page-body");
             body.appendChild(responseNode);
         });
