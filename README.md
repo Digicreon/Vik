@@ -105,6 +105,7 @@ Parameters:
 * `processForms` (boolean): Tell if form (`<form>` tags) must be processed. (default: `true`)
 * `formsSelector` (string): Selector used to fetch forms. (shouldn't be modified unless you know what you are doing)
 * `ghost` (boolean): Tell if loadings should be in ghost mode (no addition in history). (default: `false` in general, and `true` for POST forms)
+* `ghostRedirection` (boolean): Tell if redirected loadings shoulb be in ghost mode (no addition in history). (default: `false`)
 * `postMethod` (bool): Set to `true` to force the POST HTTP method when a link is fetched (no effect on forms).
 * `preCallback` (function|array): Handler to call before the page has been loaded. Could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
 * `postCallback` (function|array): Handler to call after the page has been loaded. Could be a function name or an anonymous function, or a list of function names and/or anonymous functions.
@@ -139,6 +140,7 @@ Attributes:
 * `data-vik-url`: Force a URL different than the one set in the `href` or `action` attribute.
 * `data-vik-post-method`: Set to "`true`" to force the POST HTTP method when a link is fetched (forms use the "`method`" attribute to define the used HTTP method).
 * `data-vik-ghost`: Tell if the "ghost mode" must be used. Possible values are "`true`" or "`false`".
+* `data-vik-ghost-redirection`: Tell if the "ghost redirection mode" must be used. Possible values are "`true`" or "`false`".
 * `data-vik-strategy`: Merging strategy. Possible values are "`replace`", "`fill`" or "`copy`".
 * `data-vik-target`: Selector of the DOM element (in the current page) that will be replaced by (or filled by) the fetched content.
 * `data-vik-source`: Selector of the DOM element (in the fetched page) that will replace (or fill into, or be copied into) the target node.
@@ -486,7 +488,7 @@ Parameters:
 * `strategy`: The Vik strategy. It is sent in a special `x-vik-strategy` HTTP header. You can set it to `null`.
 * `asHTML`: Possible values are `true` and `false`. If set to `true`, the fetched content will be processed as HTML, and then the handler callback will receive a DOM node as a parameter. If set to `false`, the handler callback will receive the reponse as raw text.
 * `postData`: Set it to `null` if you want to perform a GET request. If you want to make a POST request, give an object which each attribute will become a POST data.
-* `handler`: Callback function that will be called once the HTTP request is executed. It must take one parameter, which can be a DOM node or a raw text (see the `asHTML` parameter).
+* `handler`: Callback function that will be called once the HTTP request is executed. It must take two parameters; the first one can be a DOM node or a raw text (see the `asHTML` parameter); the second one is the final loaded URL (if redirections occurred, it is the last redirection URL).
 
 Example:
 ```html
