@@ -14,6 +14,7 @@ It is similar to [GitHub's pjax](https://github.com/defunkt/jquery-pjax) and [Ba
     * [3.1 General configuration](#31-general-configuration)
     * [3.2 Configuration of links and forms](#32-configuration-of-links-and-forms)
     * [3.3 Configuration priority](#33-configuration-priority)
+    * [3.4 Execution of script tags](#34-execution-of-script-tags)
 * [4. Pre- and Post-callbacks](#4-pre--and-post-callbacks)
     * [4.1 Configuration declaration](#41-configuration-declaration)
     * [4.2 Declaration of event listeners](#42-declaration-of-event-listeners)
@@ -203,6 +204,11 @@ Another example: All the linked pages' full content will be loaded in a special 
 </body>
 </html>
 ```
+
+### 3.4 Execution of script tags
+When Vik fetch an HTML page that contains script tags, they are evaluated and executed.
+
+If you don't want to automatically execute a script tag, add a `data-vik="false"` attribute to it.
 
 
 ## 4. Pre- and Post-callbacks
